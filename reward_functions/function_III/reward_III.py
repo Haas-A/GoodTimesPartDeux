@@ -53,4 +53,7 @@ def reward_function(params):
         if abs_steering > ABS_STEERING_THRESHOLD:
             reward *= 0.8
 
+    if distance_from_center > track_width / 2:
+        reward *= 0.4
+    
     return float(reward)
