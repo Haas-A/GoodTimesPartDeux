@@ -15,7 +15,7 @@ def reward_function(params):
     direction_threshold = 10
     # Steering penality threshold, change the number based on your action space setting
     ABS_STEERING_THRESHOLD = 15
-    future_waypoint = 4
+    future_waypoint = 5
     num_waypoints = len(waypoints)
     target_waypoint_index = closest_waypoints[0] + future_waypoint
     target_waypoint_index = target_waypoint_index % len(waypoints)
@@ -35,28 +35,23 @@ def reward_function(params):
 
     #reward for going fast when heading towards future waypoint
     if direction_diff < direction_threshold and speed > 3.75:
-        reward *= 2
+        reward *= 2.2
     elif direction_diff < direction_threshold * 2 and speed > 2.75:
         reward *= 1.3
     elif direction_diff > 70 and speed > 2.75:
-        reward *= 0.2
-    
-    #reward for going slow at a turn
-    if track_direction > 75 and speed < 3:
-        reward *= 1.5
+        reward *= 0.1
 
-    if track_direction < 20:
-        if abs_steering < ABS_STEERING_THRESHOLD / 2:
-            reward *= 1.5
-    else:
-        # Penalize reward if the car is steering too much
-        if abs_steering > ABS_STEERING_THRESHOLD:
-            reward *= 0.8
-
+    #Punish if car is too far from center and likely off track
     if distance_from_center > track_width / 2:
-        reward *= 0.4
+        reward *= 0.1
+    elif distance_from_center > track_width / 1.8:
+        reward *= 0.0001
     
-    if speed > 3:
-        reward *= 1.15
+    #reward just for going fast
+    if speed > 3.5:
+        reward *= 1.2
+    print("track direction: ", track_direction)
+    print("direction_diff: ", direction_diff)
+    print("target waypoint: ", target_waypoint)
     
     return float(reward)
