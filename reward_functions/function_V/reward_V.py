@@ -33,7 +33,11 @@ def reward_function(params):
     return float(reward)
 
 def speed_bonus(speed_weight, speed):
-    bonus = 5 / (5 - speed)
+    max = 6
+    delta = max - speed
+    delta_sq = delta * delta
+    max_sq = max * max
+    bonus = max_sq / delta_sq
     return speed_weight * bonus
 
 def heading_bonus(heading_weight, direction_diff):
