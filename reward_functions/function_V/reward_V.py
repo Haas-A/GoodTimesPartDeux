@@ -3,20 +3,15 @@ import math
 def reward_function(params):
 
     # Read input parameters
-    track_width = params['track_width']
-    distance_from_center = params['distance_from_center']
     waypoints = params['waypoints']
     closest_waypoints = params['closest_waypoints']
     heading = params['heading']
-    abs_steering = abs(params['steering_angle']) # Only need the absolute steering angle
     speed = params['speed']
+    speed_weight = 1
+    heading_weight = 1
 
-    #Threshold the car should aim for the target waypoint
-    direction_threshold = 10
     # Steering penality threshold, change the number based on your action space setting
-    ABS_STEERING_THRESHOLD = 15
     future_waypoint = 5
-    num_waypoints = len(waypoints)
     target_waypoint_index = closest_waypoints[0] + future_waypoint
     target_waypoint_index = target_waypoint_index % len(waypoints)
     target_waypoint = waypoints[target_waypoint_index]
@@ -33,33 +28,16 @@ def reward_function(params):
     if direction_diff > 180:
         direction_diff = 360 - direction_diff
 
-    #reward for going fast when heading towards future waypoint
-    if direction_diff < direction_threshold and speed > 3.75:
-        reward *= 2.2
-    elif direction_diff < direction_threshold * 2 and speed > 2.75:
-        reward *= 1.3
-    elif direction_diff > 70 and speed > 2.75:
-        reward *= 0.1
-
-    #Punish if car is too far from center and likely off track
-    if distance_from_center > track_width / 2:
-        reward *= 0.1
-    elif distance_from_center > track_width / 1.8:
-        reward *= 0.0001
-
-    reward = speed_bonus + steering_bonus + heading_bonus
+    reward = speed_bonus(speed_weight, speed) + heading_bonus(heading_weight, direction_diff)
     
     return float(reward)
 
-def speed_bonus(param):
-        #reward just for going fast
-    if speed > 3.5:
-        reward *= 1.2
-    return 0
+def speed_bonus(speed_weight, speed):
+    bonus = 5 / (5 - speed)
+    return speed_weight * bonus
 
-def steering_bonus(param):
-    return 0
-
-def heading_bonus(param):
-    return 0
+def heading_bonus(heading_weight, direction_diff):
+    sqrt = math.sqrt(1 + (direction_diff * direction_diff))
+    bonus = 5 / sqrt
+    return heading_weight * bonus
 
